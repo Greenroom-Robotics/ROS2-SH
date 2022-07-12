@@ -282,7 +282,7 @@ public:
 
             if (context.success)
             {
-                xtypes::DynamicType::Ptr dtype = context.module().submodule(type.first)->type(type.second, true);
+                xtypes::DynamicType::Ptr dtype = context.module().submodule(type.first)->type(type.second);
                 if (dtype.get())
                 {
                     type_registry.emplace(type.first + "::msg::" + type.second, std::move(dtype));
@@ -310,7 +310,7 @@ public:
     }
 
     bool preprocess_types(
-        const YAML::Node& types_node) override
+        const YAML::Node& types_node)
     {
         // Check that the types YAML node is not empty
         if (!types_node)
@@ -463,7 +463,11 @@ public:
                 if (context.success)
                 {
                     // Due to the ROS 2 convention any IDL type must have two modules (package_name and msg/srv)
-                    size_t modules = context.module().submodule_size() - ros2_modules.size();
+                    size_t module_count = 0;
+                    // submodule_size() doesn't exist in the current xtypes version
+                    context.module().for_each_submodule([&module_count] (__attribute__((unused)) const xtypes::idl::Module& mod){module_count++;});
+
+                    size_t modules = module_count - ros2_modules.size();
                     logger_ << utils::Logger::Level::DEBUG
                             << "Number of modules: " << modules << std::endl;
 
@@ -570,9 +574,10 @@ public:
                             // The generate function take the module xtypes objects and generate the associated IDL
                             // strings. Each map entry represents the name of the type and the generated IDL.
                             std::map<std::string, std::string> resulting_idl;
-                            auto m_idl = eprosima::xtypes::idl::generate(
-                                static_cast<const xtypes::idl::Module&>
-                                (context.module()), &resulting_idl);
+                            throw std::runtime_error("Not implemented - xtypes has missing functionality");
+                            // auto m_idl = eprosima::xtypes::idl::generate(
+                            //     static_cast<const xtypes::idl::Module&>
+                            //     (context.module()), &resulting_idl);
 
 
                             std::string depends = "";
