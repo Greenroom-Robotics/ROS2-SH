@@ -23,12 +23,21 @@ namespace_variable = '__'.join(namespace_parts)
 
 conversion_dependency = 'is/rosidl/ros2/{}/msg/convert__msg__{}.hpp'.format(
     spec.base_type.pkg_name, camelcase_msg_type)
+
+alphabetical_fields = sorted(spec.fields, key=lambda x: x.name)
+
+cpp_msg_type = '{}::msg::{}'.format(
+      spec.base_type.pkg_name, camelcase_msg_type)
+
+msg_type_string = '{}/msg/{}'.format(
+      spec.base_type.pkg_name, camelcase_msg_type)
 }@
 
 // Include the API header for this message type
 #include <@(conversion_dependency)>
 // Include the Factory header so we can add this message type to the Factory
 #include <is/sh/ros2/Factory.hpp>
+#include <is/sh/ros2/BaseConverter.hpp>
 
 // Include the Node API so we can subscribe and advertise
 #include <rclcpp/node.hpp>
@@ -40,25 +49,39 @@ namespace sh {
 namespace ros2 {
 namespace @(namespace_variable) {
 
-//==============================================================================
-namespace {
-TypeToFactoryRegistrar register_type(g_msg_name, &type);
-} // anonymous namespace
+const std::string g_msg_cpp_struct_name = "@(cpp_msg_type)";
+const std::string g_msg_name = "@(msg_type_string)";
+const std::string g_idl = R"~~~(
+@(idl)
+)~~~";
 
 //==============================================================================
-class Subscription final
+void convert_to_ros2([[maybe_unused]] const eprosima::xtypes::ReadableDynamicDataRef& from, [[maybe_unused]] Ros2_Msg& to)
+{
+@[for field in alphabetical_fields]@
+    utils::Convert<Ros2_Msg::_@(field.name)_type>::from_xtype_field(from["@(field.name)"], to.@(field.name));
+@[end for]@
+}
+
+//==============================================================================
+void convert_to_xtype([[maybe_unused]] const Ros2_Msg& from, [[maybe_unused]]eprosima::xtypes::WritableDynamicDataRef to)
+{
+@[for field in alphabetical_fields]@
+    utils::Convert<Ros2_Msg::_@(field.name)_type>::to_xtype_field(from.@(field.name), to["@(field.name)"]);
+@[end for]@
+}
+
+
+class Subscription : public BaseConverter
 {
 public:
-
     Subscription(
             rclcpp::Node& node,
             TopicSubscriberSystem::SubscriptionCallback* callback,
             const std::string& topic_name,
             const xtypes::DynamicType& message_type,
             const rclcpp::QoS& qos_profile)
-        : _callback(callback)
-        , _message_type(message_type)
-        , _topic_name(topic_name)
+        : BaseConverter {callback, topic_name, message_type}
     {
         auto subscription_options = rclcpp::SubscriptionOptionsWithAllocator<std::allocator<void>>();
         subscription_options.ignore_local_publications = true; // Enable ignore_local_publications option
@@ -71,6 +94,12 @@ public:
             },
             subscription_options);
     }
+
+    static const eprosima::xtypes::StructType& get_type() {
+        static eprosima::xtypes::StructType the_type = parse_type_idl(g_msg_cpp_struct_name, g_msg_name, g_idl);
+        return the_type;
+    }
+
 
 private:
 
@@ -90,20 +119,16 @@ private:
         (*_callback)(data, nullptr);
     }
 
-    // Save the callback that we were given by the is-ros2 plugin
-    TopicSubscriberSystem::SubscriptionCallback* _callback;
-
-    const xtypes::DynamicType& _message_type;
-
-    std::string _topic_name;
-
     // Hang onto the subscription handle to make sure the connection to the topic
     // stays alive
     rclcpp::Subscription<Ros2_Msg>::SharedPtr _subscription;
-
 };
 
-//==============================================================================
+namespace {
+TypeToFactoryRegistrar register_type(g_msg_name, &Subscription::get_type);
+} // anonymous namespace
+
+
 std::shared_ptr<void> subscribe(
         rclcpp::Node& node,
         const std::string& topic_name,
@@ -165,6 +190,7 @@ std::shared_ptr<is::TopicPublisher> make_publisher(
 {
     return std::make_shared<Publisher>(node, topic_name, qos_profile);
 }
+
 
 namespace {
 PublisherToFactoryRegistrar register_publisher(g_msg_name, &make_publisher);
