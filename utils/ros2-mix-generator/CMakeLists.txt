@@ -36,7 +36,7 @@ find_package(is-core REQUIRED)
 find_package(rosidl_parser REQUIRED)
 find_package(is-ros2 REQUIRED)
 
-list(APPEND MIX_ROS_PACKAGES_LIST std_msgs)
+list(APPEND MIX_ROS_PACKAGES_LIST std_msgs ) #nmea2000_msgs can_j1939_msgs can_glendinning_msgs)
 
 if (MIX_ROS_PACKAGES)
 

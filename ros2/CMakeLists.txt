@@ -75,6 +75,7 @@ if(BUILD_LIBRARY)
     add_library(${PROJECT_NAME}
         SHARED
             src/Factory.cpp
+            src/BaseConverter.cpp
             $<IF:$<STREQUAL:"${IS_ROS2_DISTRO}","foxy">,src/SystemHandle__foxy.cpp,src/SystemHandle.cpp>
             src/MetaPublisher.cpp
         )

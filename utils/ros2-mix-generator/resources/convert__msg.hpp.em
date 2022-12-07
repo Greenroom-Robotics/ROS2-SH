@@ -45,8 +45,6 @@ for field in spec.fields:
     if key not in conversion_dependencies:
         conversion_dependencies[key] = set([])
     conversion_dependencies[key].add(field.name)
-
-alphabetical_fields = sorted(spec.fields, key=lambda x: x.name)
 }@
 
 #ifndef @(header_guard_variable)
@@ -82,42 +80,9 @@ namespace ros2 {
 namespace @(namespace_variable) {
 
 using Ros2_Msg = @(cpp_msg_type);
-const std::string g_msg_name = "@(msg_type_string)";
-const std::string g_idl = R"~~~(
-@(idl)
-)~~~";
 
-//==============================================================================
-inline const eprosima::xtypes::StructType& type()
-{
-    eprosima::xtypes::idl::Context context;
-    context.allow_keyword_identifiers = true;
-    context.ignore_redefinition = true;
-    eprosima::xtypes::idl::parse(g_idl, context);
-    if (!context.success)
-    {
-        throw std::runtime_error("Failed while parsing type @(cpp_msg_type)");
-    }
-    static eprosima::xtypes::StructType type(context.module().structure("@(cpp_msg_type)"));
-    type.name(g_msg_name);
-    return type;
-}
-
-//==============================================================================
-inline void convert_to_ros2([[maybe_unused]] const eprosima::xtypes::ReadableDynamicDataRef& from, [[maybe_unused]] Ros2_Msg& to)
-{
-@[for field in alphabetical_fields]@
-    utils::Convert<Ros2_Msg::_@(field.name)_type>::from_xtype_field(from["@(field.name)"], to.@(field.name));
-@[end for]@
-}
-
-//==============================================================================
-inline void convert_to_xtype([[maybe_unused]] const Ros2_Msg& from, [[maybe_unused]]eprosima::xtypes::WritableDynamicDataRef to)
-{
-@[for field in alphabetical_fields]@
-    utils::Convert<Ros2_Msg::_@(field.name)_type>::to_xtype_field(from.@(field.name), to["@(field.name)"]);
-@[end for]@
-}
+void convert_to_ros2([[maybe_unused]] const eprosima::xtypes::ReadableDynamicDataRef& from, [[maybe_unused]] Ros2_Msg& to);
+void convert_to_xtype([[maybe_unused]] const Ros2_Msg& from, [[maybe_unused]]eprosima::xtypes::WritableDynamicDataRef to);
 
 static eprosima::is::utils::Logger logger ("is::sh::ROS2");
 
