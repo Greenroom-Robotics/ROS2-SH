@@ -149,11 +149,11 @@ if(BUILD_LIBRARY)
             rclcpp
         )
 
-    file(
-        COPY
+    install(
+        DIRECTORY
             ${CMAKE_CURRENT_LIST_DIR}/include/
         DESTINATION
-            ${CMAKE_INSTALL_PREFIX}/include/
+            ${CMAKE_INSTALL_INCLUDEDIR}
     )
 endif()
 
