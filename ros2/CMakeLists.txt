@@ -26,7 +26,7 @@ project(is-ros2 VERSION "3.1.0" LANGUAGES CXX)
 # Configure options
 ###################################################################################
 option(BUILD_LIBRARY "Compile the ROS 2 SystemHandle" ON)
-set(IS_ROS2_SH_MODE "Static" CACHE STRING "Select the ROS 2 SystemHandle Mode")
+set(IS_ROS2_SH_MODE "dynamic" CACHE STRING "Select the ROS 2 SystemHandle Mode")
 
 ###################################################################################
 # Select the proper ROS 2 Distro to use

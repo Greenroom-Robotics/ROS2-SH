@@ -126,12 +126,13 @@ if(BUILD_LIBRARY)
             ${CMAKE_INSTALL_PREFIX}/include/
     )
 
-    file(
-        COPY
-            ${CMAKE_CURRENT_LIST_DIR}/resources/
-        DESTINATION
-            /tmp/
-    )
+#    we do not want to generate rosidl interfaces from our stuff
+#    file(
+#        COPY
+#            ${CMAKE_CURRENT_LIST_DIR}/resources/
+#        DESTINATION
+#            /tmp/
+#    )
 endif()
 
 ###################################################################################
