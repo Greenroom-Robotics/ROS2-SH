@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>is-ros2</name>
+  <version>3.1.0</version>
+  <description>Integration Service System Handle for ROS 2</description>
+  <maintainer email="team@greenroomrobotics.com">Greenroom Robotics</maintainer>
+  <license>UNLICENSED</license>
+  <url type="website">https://github.com/Greenroom-Robotics/ROS2-SH/tree/feature/mix-idl-support</url>
+
+  <depend>rclcpp</depend>
+  <depend>is-core</depend>
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>
