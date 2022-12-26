@@ -10,6 +10,7 @@
 
   <depend>rclcpp</depend>
   <depend>is-core</depend>
+  <depend>xtypes</depend>
   <export>
     <build_type>cmake</build_type>
   </export>
