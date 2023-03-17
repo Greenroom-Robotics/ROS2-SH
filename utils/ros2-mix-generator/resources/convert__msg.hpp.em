@@ -60,9 +60,6 @@ alphabetical_fields = sorted(spec.fields, key=lambda x: x.name)
 // Include the header for the conversions
 #include <is/utils/Convert.hpp>
 
-// Include the header for the logger
-#include <is/utils/Log.hpp>
-
 // Include the header for the concrete ros2 message type
 #include <@(ros2_msg_dependency)>
 
@@ -104,22 +101,26 @@ inline const eprosima::xtypes::StructType& type()
 }
 
 //==============================================================================
-inline void convert_to_ros2([[maybe_unused]] const eprosima::xtypes::ReadableDynamicDataRef& from, [[maybe_unused]] Ros2_Msg& to)
+inline void convert_to_ros2([[maybe_unused]] const eprosima::xtypes::ReadableDynamicDataRef& from, [[maybe_unused]] rclcpp::SerializedMessage& to)
 {
 @[for field in alphabetical_fields]@
     utils::Convert<Ros2_Msg::_@(field.name)_type>::from_xtype_field(from["@(field.name)"], to.@(field.name));
 @[end for]@
+  rclcpp::Serialization<Ros2_Msg> ser;
+  ser.serialize_message(&message, &to);
 }
 
 //==============================================================================
-inline void convert_to_xtype([[maybe_unused]] const Ros2_Msg& from, [[maybe_unused]]eprosima::xtypes::WritableDynamicDataRef to)
+inline void convert_to_xtype([[maybe_unused]] const rclcpp::SerializedMessage& message, [[maybe_unused]]eprosima::xtypes::WritableDynamicDataRef to)
 {
+  Ros2_Msg from;
+  rclcpp::Serialization<Ros2_Msg> serializer;
+  serializer.deserialize_message(message.get(), &from);
 @[for field in alphabetical_fields]@
     utils::Convert<Ros2_Msg::_@(field.name)_type>::to_xtype_field(from.@(field.name), to["@(field.name)"]);
 @[end for]@
 }
 
-static eprosima::is::utils::Logger logger ("is::sh::ROS2");
 
 } //  namespace @(namespace_variable)
 } //  namespace ros2
