@@ -60,6 +60,52 @@ public:
         return it->second();
     }
 
+    void register_serialiser_factory(
+            const std::string& type_name,
+            SerialiseToROS2Function register_func)
+    {
+      _serialiser_factories[type_name] = std::move(register_func);
+    }
+
+    SerialiseToROS2Function* get_serialise_function(
+            const xtypes::DynamicType& topic_type)
+    {
+      auto it = _serialiser_factories.find(topic_type.name());
+      if (it == _serialiser_factories.end())
+      {
+        logger_ << utils::Logger::Level::ERROR
+                << "get_convert_ros2_function' could not find a message type named '"
+                << topic_type.name() << "' to load!" << std::endl;
+
+        return nullptr;
+      }
+
+      return &it->second;
+    }
+
+    void register_deserialiser_factory(
+            const std::string& type_name,
+            DeserialiseToXtypeFunction register_func)
+    {
+      _deserialiser_factories[type_name] = std::move(register_func);
+    }
+
+    DeserialiseToXtypeFunction* get_deserialise_function(
+            const xtypes::DynamicType& topic_type)
+    {
+      auto it = _deserialiser_factories.find(topic_type.name());
+      if (it == _deserialiser_factories.end())
+      {
+        logger_ << utils::Logger::Level::ERROR
+                << "get_convert_xtype_function' could not find a message type named '"
+                << topic_type.name() << "' to load!" << std::endl;
+
+        return nullptr;
+      }
+
+      return &it->second;
+    }
+
     void register_subscription_factory(
             const std::string& topic_type,
             RegisterSubscriptionToFactory register_sub_func)
@@ -173,6 +219,10 @@ private:
     std::unordered_map<std::string, RegisterPublisherToFactory> _publisher_factories;
     std::unordered_map<std::string, RegisterServiceClientToFactory> _client_proxy_factories;
     std::unordered_map<std::string, RegisterServiceProviderToFactory> _server_proxy_factories;
+
+    std::unordered_map<std::string, SerialiseToROS2Function> _serialiser_factories;
+    std::unordered_map<std::string, DeserialiseToXtypeFunction> _deserialiser_factories;
+
 
     utils::Logger logger_;
 };

@@ -457,6 +457,7 @@ bool SystemHandle::subscribe(
         message_type, *_node, topic_name, callback,
         parse_rmw_qos_configuration(configuration["qos"], _logger));
 
+
     if (!subscription)
     {
         _logger << utils::Logger::Level::ERROR

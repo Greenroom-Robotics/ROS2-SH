@@ -7,8 +7,8 @@ namespace is {
 namespace sh {
 namespace ros2 {
 
-using ConvertToXtypeCall = std::function<void(const rclcpp::SerializedMessage&, eprosima::xtypes::WritableDynamicDataRef)>;
-using ConvertToROS2Call = std::function<void(const eprosima::xtypes::ReadableDynamicDataRef&, rclcpp::SerializedMessage&)>;
+//using ConvertToXtypeCall = std::function<void(const rclcpp::SerializedMessage&, eprosima::xtypes::WritableDynamicDataRef)>;
+//using ConvertToROS2Call = std::function<void(const eprosima::xtypes::ReadableDynamicDataRef&, rclcpp::SerializedMessage&)>;
 
 static eprosima::is::utils::Logger logger("is::sh::ROS2");
 
@@ -26,7 +26,7 @@ public:
             const std::string& topic_type,
             const xtypes::DynamicType& message_type,
             const rclcpp::QoS& qos_profile,
-            ConvertToXtypeCall convert_to_xtype)
+            Factory::RegisterDeserialiseToXtypeFactory* convert_to_xtype)
         : _callback(callback)
         , _message_type(message_type)
         , _topic_name(topic_name)
@@ -54,7 +54,7 @@ private:
                << _topic_name << "'" << std::endl;
 
         xtypes::DynamicData data(_message_type);
-        _convert_to_xtype(msg, data);
+        (*_convert_to_xtype)(msg, data);
 
         logger << utils::Logger::Level::INFO
                 << "Received message: [[ " << data << " ]]" << std::endl;
@@ -71,7 +71,7 @@ private:
     std::string _topic_type;
 
     rclcpp::GenericSubscription::SharedPtr _subscription;
-    ConvertToXtypeCall _convert_to_xtype;
+    Factory::RegisterDeserialiseToXtypeFactory* _convert_to_xtype;
 
 };
 
@@ -84,9 +84,11 @@ public:
             rclcpp::Node& node,
             const std::string& topic_name,
             const std::string& topic_type,
-            const rclcpp::QoS& qos_profile)
+            const rclcpp::QoS& qos_profile,
+            Factory::RegisterSerialiseToROS2Factory* convert_to_ros2)
         : _topic_name(topic_name),
-            _topic_type(topic_type)
+            _topic_type(topic_type),
+            _convert_to_ros2(convert_to_ros2)
     {
         _publisher = node.create_generic_publisher(
             topic_name,
@@ -98,7 +100,7 @@ public:
             const xtypes::DynamicData& message) override
     {
         rclcpp::SerializedMessage ros2_msg;
-        _convert_to_ros2(message, ros2_msg);
+        (*_convert_to_ros2)(message, ros2_msg);
 
         logger << utils::Logger::Level::INFO
             << "Sending message from Integration Service to ROS 2 for topic '" << _topic_name << "': "
@@ -115,7 +117,7 @@ private:
     std::string _topic_name;
     std::string _topic_type;
 
-    ConvertToROS2Call _convert_to_ros2;
+    Factory::RegisterSerialiseToROS2Factory* _convert_to_ros2;
 
 };
 
