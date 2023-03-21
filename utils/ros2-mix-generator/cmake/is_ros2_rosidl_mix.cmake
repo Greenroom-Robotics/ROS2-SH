@@ -47,6 +47,11 @@ include(GNUInstallDirs)
 # mix libraries from being generated. If REQUIRED is not specified, then this
 # function will instead print warnings and proceed as much as possible whenever
 # an error is encountered.
+
+find_package(is-core REQUIRED)
+find_package(rosidl_parser REQUIRED)
+find_package(is-ros2 REQUIRED)
+
 function(is_ros2_rosidl_mix)
 
     set(possible_options QUIET REQUIRED)
@@ -77,9 +82,9 @@ function(is_ros2_rosidl_mix)
             INTERPRETER
                 ${Python_EXECUTABLE}
             FIND
-                ${CMAKE_CURRENT_LIST_DIR}/scripts/is_ros2_rosidl_find_package_info.py
+                ${IS_ROS2_SCRIPT_DIR}/is_ros2_rosidl_find_package_info.py
             GENERATE
-                ${CMAKE_CURRENT_LIST_DIR}/scripts/is_ros2_rosidl_generate.py
+                ${IS_ROS2_SCRIPT_DIR}/is_ros2_rosidl_generate.py
         PACKAGES
             ${_ARG_PACKAGES}
         MIDDLEWARES
