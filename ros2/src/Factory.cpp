@@ -21,6 +21,7 @@
 #include <is/utils/Log.hpp>
 
 #include <unordered_map>
+#include <utility>
 
 namespace eprosima {
 namespace is {
@@ -74,7 +75,7 @@ public:
       if (it == _serialiser_factories.end())
       {
         logger_ << utils::Logger::Level::ERROR
-                << "get_convert_ros2_function' could not find a message type named '"
+                << "get_serialise_function' could not find a message type named '"
                 << topic_type.name() << "' to load!" << std::endl;
 
         return nullptr;
@@ -97,7 +98,7 @@ public:
       if (it == _deserialiser_factories.end())
       {
         logger_ << utils::Logger::Level::ERROR
-                << "get_convert_xtype_function' could not find a message type named '"
+                << "get_deserialise_function' could not find a message type named '"
                 << topic_type.name() << "' to load!" << std::endl;
 
         return nullptr;
@@ -190,7 +191,7 @@ public:
             const std::string& service_request_type,
             RegisterServiceProviderToFactory register_service_server_func)
     {
-        _server_proxy_factories[service_request_type] = register_service_server_func;
+        _server_proxy_factories[service_request_type] = std::move(register_service_server_func);
     }
 
     std::shared_ptr<ServiceProvider> create_server_proxy(
@@ -248,6 +249,32 @@ xtypes::DynamicType::Ptr Factory::create_type(
         const std::string& type_name)
 {
     return _pimpl->create_type(type_name);
+}
+
+void Factory::register_serialiser_factory(
+        const std::string& topic_type,
+        Factory::SerialiseToROS2Function register_func)
+{
+    _pimpl->register_serialiser_factory(topic_type, std::move(register_func));
+}
+
+void Factory::register_deserialiser_factory(
+        const std::string& topic_type,
+        Factory::DeserialiseToXtypeFunction register_func)
+{
+    _pimpl->register_deserialiser_factory(topic_type, std::move(register_func));
+}
+
+Factory::SerialiseToROS2Function* Factory::get_serialise_function(
+        const xtypes::DynamicType& topic_type)
+{
+    return _pimpl->get_serialise_function(topic_type);
+}
+
+Factory::DeserialiseToXtypeFunction* Factory::get_deserialise_function(
+        const xtypes::DynamicType& topic_type)
+{
+    return _pimpl->get_deserialise_function(topic_type);
 }
 
 //==============================================================================

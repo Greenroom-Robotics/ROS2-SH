@@ -86,7 +86,13 @@ public:
 
     void register_deserialiser_factory(
             const std::string& topic_type,
-            DeserialiseToXtypeFunction register_func);\
+            DeserialiseToXtypeFunction register_func);
+
+    SerialiseToROS2Function* get_serialise_function(
+            const xtypes::DynamicType& topic_type);
+
+    DeserialiseToXtypeFunction* get_deserialise_function(
+            const xtypes::DynamicType& topic_type);
 
     /**
      * @brief Register a dynamic type within the types Factory.

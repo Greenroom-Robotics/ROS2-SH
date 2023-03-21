@@ -453,10 +453,8 @@ bool SystemHandle::subscribe(
         SubscriptionCallback* callback,
         const YAML::Node& configuration)
 {
-    auto subscription = Factory::instance().create_subscription(
-        message_type, *_node, topic_name, callback,
-        parse_rmw_qos_configuration(configuration["qos"], _logger));
-
+    auto qos_profile = parse_rmw_qos_configuration(configuration["qos"], _logger);
+    auto subscription = make_meta_subscriber(topic_name, message_type, callback, *_node, qos_profile, configuration);
 
     if (!subscription)
     {
@@ -499,21 +497,10 @@ std::shared_ptr<TopicPublisher> SystemHandle::advertise(
 {
     std::shared_ptr<TopicPublisher> publisher;
 
-    if (topic_name.find('{') != std::string::npos)
-    {
-        // If the topic name contains a curly brace, we must assume that it needs
-        // runtime substitutions.
-        publisher = make_meta_publisher(
-            message_type, *_node, topic_name,
-            parse_rmw_qos_configuration(configuration["qos"], _logger),
-            configuration);
-    }
-    else
-    {
-        publisher = Factory::instance().create_publisher(
-            message_type, *_node, topic_name,
-            parse_rmw_qos_configuration(configuration["qos"], _logger));
-    }
+    publisher = make_meta_publisher(
+        topic_name, message_type, *_node,
+        parse_rmw_qos_configuration(configuration["qos"], _logger),
+        configuration);
 
     if (nullptr != publisher)
     {

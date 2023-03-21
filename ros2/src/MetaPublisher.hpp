@@ -49,9 +49,17 @@ namespace ros2 {
  * @returns A pointer to the created *Integration Service* TopicPublisher entity.
  */
 std::shared_ptr<TopicPublisher> make_meta_publisher(
+        const std::string& topic_name,
         const eprosima::xtypes::DynamicType& message_type,
         rclcpp::Node& node,
+        const rclcpp::QoS& qos_profile,
+        const YAML::Node& configuration);
+
+std::shared_ptr<void> make_meta_subscriber(
         const std::string& topic_name,
+        const eprosima::xtypes::DynamicType& message_type,
+        TopicSubscriberSystem::SubscriptionCallback* callback,
+        rclcpp::Node& node,
         const rclcpp::QoS& qos_profile,
         const YAML::Node& configuration);
 
