@@ -71,6 +71,8 @@ if (BUILD_TESTS OR BUILD_ROS2_TESTS)
 
 endif()
 
+set(IS_ROS2_SCRIPT_DIR "${CMAKE_CURRENT_LIST_DIR}/scripts")
+
 ###################################################################################
 # Install the Integration Service is-ros2-rosidl-mix plugin
 ###################################################################################
@@ -85,6 +87,7 @@ is_mix_install_extension(
         SOURCES "${CMAKE_CURRENT_LIST_DIR}/resources/convert__srv.cpp.em"
 )
 
+
 include(cmake/is_ros2_rosidl_mix.cmake)
 
 is_ros2_rosidl_mix(
@@ -92,11 +95,19 @@ is_ros2_rosidl_mix(
     MIDDLEWARES ros2
 )
 
-find_program(NODERED_EXECUTABLE NAMES node-red node-red@ PATH_SUFFIXES bin)
+install(
+    DIRECTORY
+    ${CMAKE_CURRENT_LIST_DIR}/cmake
+    DESTINATION
+    "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+)
 
-if(NODERED_EXECUTABLE)
-    file(WRITE $ENV{HOME}/rosidl_msgs_path.txt "${CMAKE_INSTALL_PREFIX}/lib/is/ros2/msg\n${CMAKE_INSTALL_PREFIX}/include/is/rosidl/ros2")
-endif()
+install (
+    DIRECTORY
+        "${CMAKE_CURRENT_SOURCE_DIR}/scripts"
+    DESTINATION
+        "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+)
 
 # Install Config.cmake file
 install(

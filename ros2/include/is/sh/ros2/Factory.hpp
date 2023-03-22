@@ -74,6 +74,26 @@ public:
     using RegisterTypeToFactory =
             std::function<xtypes::DynamicType::Ptr()>;
 
+    using SerialiseToROS2Function =
+            std::function<void(const eprosima::xtypes::ReadableDynamicDataRef&, rclcpp::SerializedMessage&)>;
+
+    void register_serialiser_factory(
+            const std::string& topic_type,
+            SerialiseToROS2Function register_func);
+
+    using DeserialiseToXtypeFunction =
+            std::function<void(const rclcpp::SerializedMessage&, eprosima::xtypes::WritableDynamicDataRef)>;
+
+    void register_deserialiser_factory(
+            const std::string& topic_type,
+            DeserialiseToXtypeFunction register_func);
+
+    SerialiseToROS2Function* get_serialise_function(
+            const xtypes::DynamicType& topic_type);
+
+    DeserialiseToXtypeFunction* get_deserialise_function(
+            const xtypes::DynamicType& topic_type);
+
     /**
      * @brief Register a dynamic type within the types Factory.
      *
@@ -386,6 +406,12 @@ using TypeToFactoryRegistrar =
 //==============================================================================
 using SubscriptionToFactoryRegistrar =
         FactoryRegistrar<Factory::RegisterSubscriptionToFactory, &Factory::register_subscription_factory>;
+
+using SerialiseToROS2FactoryRegistrar =
+        FactoryRegistrar<Factory::SerialiseToROS2Function ,&Factory::register_serialiser_factory>;
+
+using DeserialiseToXtypeFactoryRegistrar =
+        FactoryRegistrar<Factory::DeserialiseToXtypeFunction ,&Factory::register_deserialiser_factory>;
 
 //==============================================================================
 using PublisherToFactoryRegistrar =

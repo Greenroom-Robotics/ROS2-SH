@@ -23,3 +23,7 @@ endif()
 set(is-ros2-mix-generator_CONFIG_INCLUDED TRUE)
 
 set(is-ros2-mix-generator_FOUND TRUE)
+set(IS_ROS2_SCRIPT_DIR "${CMAKE_CURRENT_LIST_DIR}/scripts")
+
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/is_ros2_rosidl_mix.cmake")
+
