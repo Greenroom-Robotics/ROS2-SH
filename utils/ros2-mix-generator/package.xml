@@ -11,6 +11,7 @@
   <depend>is-core</depend>
   <depend>is-ros2</depend>
   <depend>rosidl_adapter</depend>
+  <build_depend>boost</build_depend>
 
   <export>
     <build_type>cmake</build_type>
