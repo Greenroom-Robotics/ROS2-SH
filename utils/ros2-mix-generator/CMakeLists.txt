@@ -22,6 +22,7 @@ cmake_minimum_required(VERSION 3.5.0)
 
 project(is-ros2-mix-generator)
 
+find_package(is-ros2 REQUIRED)
 ###################################################################################
 # Configure options
 ###################################################################################
@@ -31,10 +32,6 @@ if(NOT BUILD_LIBRARY)
     return()
 endif()
 
-# Get dependencies
-find_package(is-core REQUIRED)
-find_package(rosidl_parser REQUIRED)
-find_package(is-ros2 REQUIRED)
 
 list(APPEND MIX_ROS_PACKAGES_LIST std_msgs)
 
@@ -71,42 +68,9 @@ if (BUILD_TESTS OR BUILD_ROS2_TESTS)
 
 endif()
 
-set(IS_ROS2_SCRIPT_DIR "${CMAKE_CURRENT_LIST_DIR}/scripts")
-
-###################################################################################
-# Install the Integration Service is-ros2-rosidl-mix plugin
-###################################################################################
-is_mix_install_extension(
-    IDL_TYPE rosidl
-    MIDDLEWARE
-        ros2
-    MESSAGE
-        SOURCES "${CMAKE_CURRENT_LIST_DIR}/resources/convert__msg.cpp.em"
-        HEADERS "${CMAKE_CURRENT_LIST_DIR}/resources/convert__msg.hpp.em"
-    SERVICE
-        SOURCES "${CMAKE_CURRENT_LIST_DIR}/resources/convert__srv.cpp.em"
-)
-
-
-include(cmake/is_ros2_rosidl_mix.cmake)
-
 is_ros2_rosidl_mix(
     PACKAGES ${MIX_ROS_PACKAGES_LIST}
     MIDDLEWARES ros2
-)
-
-install(
-    DIRECTORY
-    ${CMAKE_CURRENT_LIST_DIR}/cmake
-    DESTINATION
-    "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-)
-
-install (
-    DIRECTORY
-        "${CMAKE_CURRENT_SOURCE_DIR}/scripts"
-    DESTINATION
-        "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
 )
 
 # Install Config.cmake file

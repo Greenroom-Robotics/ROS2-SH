@@ -147,6 +147,8 @@ if(BUILD_LIBRARY)
             ${PROJECT_NAME}
         DEPENDENCIES
             rclcpp
+        EXTENSIONS
+            ${CMAKE_CURRENT_LIST_DIR}/cmake/is_ros2_rosidl_mix.cmake
         )
 
     install(
@@ -154,6 +156,27 @@ if(BUILD_LIBRARY)
             ${CMAKE_CURRENT_LIST_DIR}/include/
         DESTINATION
             ${CMAKE_INSTALL_INCLUDEDIR}
+    )
+
+###################################################################################
+# Install the Integration Service is-ros2-rosidl-mix plugin
+###################################################################################
+    is_mix_install_extension(
+        IDL_TYPE rosidl
+        MIDDLEWARE
+            ros2
+        MESSAGE
+            SOURCES "${CMAKE_CURRENT_LIST_DIR}/resources/convert__msg.cpp.em"
+            HEADERS "${CMAKE_CURRENT_LIST_DIR}/resources/convert__msg.hpp.em"
+        SERVICE
+            SOURCES "${CMAKE_CURRENT_LIST_DIR}/resources/convert__srv.cpp.em"
+    )
+
+    install (
+        DIRECTORY
+            "${CMAKE_CURRENT_SOURCE_DIR}/scripts"
+        DESTINATION
+            "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
     )
 endif()
 

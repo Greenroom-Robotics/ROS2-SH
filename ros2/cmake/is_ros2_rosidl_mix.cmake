@@ -52,6 +52,9 @@ find_package(is-core REQUIRED)
 find_package(rosidl_parser REQUIRED)
 find_package(is-ros2 REQUIRED)
 
+
+set(IS_ROS2_EXTENSION_DIR ${CMAKE_CURRENT_LIST_DIR})
+
 function(is_ros2_rosidl_mix)
 
     set(possible_options QUIET REQUIRED)
@@ -82,9 +85,9 @@ function(is_ros2_rosidl_mix)
             INTERPRETER
                 ${Python_EXECUTABLE}
             FIND
-                ${IS_ROS2_SCRIPT_DIR}/is_ros2_rosidl_find_package_info.py
+                ${IS_ROS2_EXTENSION_DIR}/../scripts/is_ros2_rosidl_find_package_info.py
             GENERATE
-                ${IS_ROS2_SCRIPT_DIR}/is_ros2_rosidl_generate.py
+                ${IS_ROS2_EXTENSION_DIR}/../scripts/is_ros2_rosidl_generate.py
         PACKAGES
             ${_ARG_PACKAGES}
         MIDDLEWARES
