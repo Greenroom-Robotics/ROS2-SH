@@ -68,6 +68,8 @@ if (BUILD_TESTS OR BUILD_ROS2_TESTS)
 
 endif()
 
+# set(IS_ROS2_SCRIPT_DIR "${CMAKE_CURRENT_LIST_DIR}/scripts")
+
 is_ros2_rosidl_mix(
     PACKAGES ${MIX_ROS_PACKAGES_LIST}
     MIDDLEWARES ros2
