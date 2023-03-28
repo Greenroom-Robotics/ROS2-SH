@@ -22,6 +22,9 @@ cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
 project(is-ros2 VERSION "3.1.0" LANGUAGES CXX)
 
+include(GNUInstallDirs)
+
+
 string(REPLACE "/${CMAKE_LIBRARY_ARCHITECTURE}" "" CMAKE_INSTALL_LIBDIR_ARCHIND "${CMAKE_INSTALL_LIBDIR}")
 
 ###################################################################################
@@ -112,7 +115,6 @@ if(BUILD_LIBRARY)
             $<$<CXX_COMPILER_ID:MSVC>:/wd4668>
         )
 
-    include(GNUInstallDirs)
     message(STATUS "Configuring [${PROJECT_NAME}]...")
 
     target_link_libraries(${PROJECT_NAME}
