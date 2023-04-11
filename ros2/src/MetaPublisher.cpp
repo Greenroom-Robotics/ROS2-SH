@@ -76,7 +76,7 @@ public:
 //                  _qos_profile);
 //        }
 
-        logger_ << utils::Logger::Level::INFO
+        logger_ << utils::Logger::Level::DEBUG
             << "Sending message from Integration Service to ROS 2 for topic '" << _topic_name
             << "': [[ " << message << " ]]" << std::endl;
 
@@ -169,14 +169,14 @@ private:
     void subscription_callback(
             const std::shared_ptr<rclcpp::SerializedMessage>& msg)
     {
-      logger_ << utils::Logger::Level::INFO
+      logger_ << utils::Logger::Level::DEBUG
              << "Receiving message from ROS 2 for topic '"
              << _topic_name << "'" << std::endl;
 
       xtypes::DynamicData data(_message_type);
       (*_deserialise_to_xtypes)(*msg, data);
 
-      logger_ << utils::Logger::Level::INFO
+      logger_ << utils::Logger::Level::DEBUG
              << "Received message: [[ " << data << " ]]" << std::endl;
 
       (*_callback)(data, nullptr);
