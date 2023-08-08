@@ -2,11 +2,28 @@ name: Tag & Release
 
 on:
   workflow_dispatch:
+    inputs:
+      package:
+        type: choice
+        description: 'If not specified, all packages will be released.'
+        options:
+          - ""
+          - is-ros2
+          - is-ros2-mix-generator
 
 jobs:
-  release_amd:
-    name: Release AMD
-    runs-on: buildjet-4vcpu-ubuntu-2204
+  release:
+    strategy:
+      fail-fast: true
+      matrix:
+        job:
+          - runner: buildjet-4vcpu-ubuntu-2204
+            arch: amd64
+          - runner: buildjet-4vcpu-ubuntu-2204-arm
+            arch: arm64
+
+    name: Release - ${{ matrix.job.arch }}
+    runs-on: ${{matrix.job.runner}}}
 
     steps:
       - name: Checkout this repository
@@ -16,22 +33,7 @@ jobs:
         uses: Greenroom-Robotics/ros_semantic_release_action@main
         with:
           token: ${{ secrets.API_TOKEN_GITHUB }}
-          arch: amd64
-          public: true
-          changelog: false
-
-  release_arm:
-    name: Release ARM
-    runs-on: buildjet-4vcpu-ubuntu-2204-arm
-
-    steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3
-
-      - name: Semantic release
-        uses: Greenroom-Robotics/ros_semantic_release_action@main
-        with:
-          token: ${{ secrets.API_TOKEN_GITHUB }}
-          arch: arm64
+          package: ${{ github.event.inputs.package }}
+          arch: ${{ matrix.job.arch }}
           public: true
           changelog: false
