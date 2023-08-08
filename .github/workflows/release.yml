@@ -6,7 +6,7 @@ on:
 jobs:
   release_amd:
     name: Release AMD
-    runs-on: buildjet-2vcpu-ubuntu-2204
+    runs-on: buildjet-4vcpu-ubuntu-2204
 
     steps:
       - name: Checkout this repository
@@ -22,7 +22,7 @@ jobs:
 
   release_arm:
     name: Release ARM
-    runs-on: buildjet-2vcpu-ubuntu-2204-arm
+    runs-on: buildjet-4vcpu-ubuntu-2204-arm
 
     steps:
       - name: Checkout this repository
