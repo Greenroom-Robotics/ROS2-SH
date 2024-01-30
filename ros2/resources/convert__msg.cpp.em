@@ -26,6 +26,9 @@ conversion_dependency = 'is/rosidl/ros2/{}/msg/convert__msg__{}.hpp'.format(
 
 alphabetical_fields = sorted(spec.fields, key=lambda x: x.name)
 
+if len(alphabetical_fields) == 1 and alphabetical_fields[0].name == "structure_needs_at_least_one_member":
+  alphabetical_fields = []
+
 }@
 
 // Include the API header for this message type
