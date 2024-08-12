@@ -80,12 +80,16 @@ if(BUILD_LIBRARY)
     add_library(${PROJECT_NAME}
         SHARED
             src/Factory.cpp
-            $<IF:$<STREQUAL:"${IS_ROS2_DISTRO}","foxy">,src/SystemHandle__foxy.cpp,src/SystemHandle.cpp>
+            src/SystemHandle.cpp
             src/MetaPublisher.cpp
         )
 
     if (Sanitizers_FOUND)
         add_sanitizers(${PROJECT_NAME})
+    endif()
+
+    if($ENV{ROS_DISTRO} STREQUAL "iron")
+        add_definitions(-DROS_IRON)
     endif()
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -106,7 +110,6 @@ if(BUILD_LIBRARY)
             $<$<CXX_COMPILER_ID:GNU>:-Wall>
             $<$<CXX_COMPILER_ID:GNU>:-Wextra>
             $<$<CXX_COMPILER_ID:GNU>:-Wcast-align>
-            $<$<CXX_COMPILER_ID:GNU>:-Wshadow>
             $<$<CXX_COMPILER_ID:MSVC>:/W4>
             $<$<CXX_COMPILER_ID:MSVC>:/wd4700>
             $<$<CXX_COMPILER_ID:MSVC>:/wd4996>

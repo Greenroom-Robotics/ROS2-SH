@@ -158,16 +158,26 @@ public:
 
       _subscription = node.create_generic_subscription(
               _topic_name, _message_type.name(), qos_profile,
-              [=](const std::shared_ptr<rclcpp::SerializedMessage>& msg) {
+              #ifdef ROS_IRON
+              [=](const std::shared_ptr<rclcpp::SerializedMessage> msg) {
                   this->subscription_callback(msg);
               },
+              #else
+              [=](const std::shared_ptr<rclcpp::SerializedMessage> msg, const rclcpp::MessageInfo& message_info) {
+                  this->subscription_callback(msg, message_info);
+              },
+              #endif
               subscription_options);
     }
 
 private:
 
     void subscription_callback(
-            const std::shared_ptr<rclcpp::SerializedMessage>& msg)
+        #ifdef ROS_IRON
+            const std::shared_ptr<rclcpp::SerializedMessage> msg)
+        #else
+            const std::shared_ptr<rclcpp::SerializedMessage> msg, [[maybe_unused]] const rclcpp::MessageInfo & message_info)
+        #endif
     {
       logger_ << utils::Logger::Level::DEBUG
              << "Receiving message from ROS 2 for topic '"
