@@ -19,11 +19,19 @@ jobs:
         job:
           - runner: buildjet-4vcpu-ubuntu-2204
             arch: amd64
+            ros_distro: iron
           - runner: buildjet-4vcpu-ubuntu-2204-arm
             arch: arm64
+            ros_distro: iron
+          - runner: buildjet-4vcpu-ubuntu-2204
+            arch: amd64
+            ros_distro: jazzy
+          - runner: buildjet-4vcpu-ubuntu-2204-arm
+            arch: arm64
+            ros_distro: jazzy
 
     name: Release - ${{ matrix.job.arch }}
-    runs-on: ${{ matrix.job.runner }}
+    runs-on: ${{matrix.job.runner}}}
 
     steps:
       - name: Checkout this repository
@@ -35,5 +43,7 @@ jobs:
           token: ${{ secrets.API_TOKEN_GITHUB }}
           package: ${{ github.event.inputs.package }}
           arch: ${{ matrix.job.arch }}
+          ros_distro: ${{ matrix.job.ros_distro }}
+          github_release: false
           public: true
           changelog: false
