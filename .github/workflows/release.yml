@@ -30,7 +30,7 @@ jobs:
             arch: arm64
             ros_distro: jazzy
 
-    name: Release - ${{ matrix.job.arch }}
+    name: Release - ${{ matrix.job.arch }} - ${{ matrix.job.ros_distro }}
     runs-on: ${{matrix.job.runner}}}
 
     steps:
