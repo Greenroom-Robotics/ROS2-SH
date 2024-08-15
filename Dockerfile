@@ -1,4 +1,5 @@
-FROM ghcr.io/greenroom-robotics/ros_builder:iron-latest
+ARG ROS_DISTRO=iron
+FROM ghcr.io/greenroom-robotics/ros_builder:${ROS_DISTRO}-latest
 
 # Create the package_manifests by deleting everything other than package.xml
 WORKDIR /package_manifests
