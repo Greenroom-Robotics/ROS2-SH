@@ -8,7 +8,7 @@ RUN sudo chown ros:ros .
 RUN sudo find . -regextype egrep -not -regex '.*/(package\.xml)$' -type f -delete
 RUN sudo find . -type d -empty -delete
 
-FROM ghcr.io/greenroom-robotics/ros_builder:iron-latest
+FROM ghcr.io/greenroom-robotics/ros_builder:${ROS_DISTRO}-latest
 
 ARG API_TOKEN_GITHUB
 ARG PACKAGE_NAME
