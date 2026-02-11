@@ -15,11 +15,6 @@ on:
         default: true
         description: "Release for Kilted"
 
-      build_jazzy:
-        type: boolean
-        default: true
-        description: "Release for Jazzy"
-
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -29,7 +24,6 @@ jobs:
       - id: set-distros
         run: |
           distros=()
-          [ "${{ github.event.inputs.build_jazzy }}" == "true" ] && distros+=("jazzy")
           [ "${{ github.event.inputs.build_kilted }}" == "true" ] && distros+=("kilted")
 
           if [ ${#distros[@]} -eq 0 ]; then
