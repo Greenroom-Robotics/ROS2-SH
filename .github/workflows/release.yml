@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  release-is-ros2:
+  release:
     uses: Greenroom-Robotics/ros_semantic_release_action/.github/workflows/release.yml@main
     with:
       public: true
@@ -14,12 +14,13 @@ jobs:
     secrets:
       token: ${{ secrets.API_TOKEN_GITHUB }}
 
-  release-mix-generator:
-    uses: Greenroom-Robotics/ros_semantic_release_action/.github/workflows/release.yml@main
-    with:
-      public: true
-      build_iron: false
-      package: is-ros2-mix-generator
-      package_dir: ros2
-    secrets:
-      token: ${{ secrets.API_TOKEN_GITHUB }}
+  # THIS IS NOT REQUIRED ANY MORE
+  # release-mix-generator:
+  #   uses: Greenroom-Robotics/ros_semantic_release_action/.github/workflows/release.yml@main
+  #   with:
+  #     public: true
+  #     build_iron: false
+  #     package: is-ros2-mix-generator
+  #     package_dir: ros2
+  #   secrets:
+  #     token: ${{ secrets.API_TOKEN_GITHUB }}
