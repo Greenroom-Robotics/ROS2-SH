@@ -31,6 +31,7 @@ string(REPLACE "/${CMAKE_LIBRARY_ARCHITECTURE}" "" CMAKE_INSTALL_LIBDIR_ARCHIND 
 # Configure options
 ###################################################################################
 option(BUILD_LIBRARY "Compile the ROS 2 SystemHandle" ON)
+option(BUILD_TESTS "Build the Integration Service tests" ON)
 
 ###################################################################################
 # Load external CMake Modules.
@@ -52,10 +53,10 @@ if(BUILD_LIBRARY)
     # Check if the user specified which ROS 2 version he/she is using. If not, warn and try to automatically get it
     if(NOT IS_ROS2_DISTRO)
 
-        message(WARNING "
-            The variable 'IS_ROS2_DISTRO' was not used. You might want to set it to
-            specify which ROS 2 version should be used to compile the ROS 2 System Handle.
-            By default, a ROS 2 version from the sourced environment will be retrieved automatically.")
+        # message(WARNING "
+        #     The variable 'IS_ROS2_DISTRO' was not used. You might want to set it to
+        #     specify which ROS 2 version should be used to compile the ROS 2 System Handle.
+        #     By default, a ROS 2 version from the sourced environment will be retrieved automatically.")
 
             if ("$ENV{ROS_VERSION}" STREQUAL "1")
                 message(FATAL_ERROR "

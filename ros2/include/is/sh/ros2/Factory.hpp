@@ -72,17 +72,17 @@ public:
      *        within the types factory.
      */
     using RegisterTypeToFactory =
-            std::function<xtypes::DynamicType::Ptr()>;
+            std::function<xtypes::DynamicType()>;
 
     using SerialiseToROS2Function =
-            std::function<void(const eprosima::xtypes::ReadableDynamicDataRef&, rclcpp::SerializedMessage&)>;
+            std::function<void(const eprosima::xtypes::DynamicData&, rclcpp::SerializedMessage&)>;
 
     void register_serialiser_factory(
             const std::string& topic_type,
             SerialiseToROS2Function register_func);
 
     using DeserialiseToXtypeFunction =
-            std::function<void(const rclcpp::SerializedMessage&, eprosima::xtypes::WritableDynamicDataRef)>;
+            std::function<void(const rclcpp::SerializedMessage&, eprosima::xtypes::DynamicData)>;
 
     void register_deserialiser_factory(
             const std::string& topic_type,
@@ -114,7 +114,7 @@ public:
      * @returns A pointer to the created type, or `nullptr` if the type was not
      *          registered in the Factory.
      */
-    xtypes::DynamicType::Ptr create_type(
+    xtypes::DynamicType create_type(
             const std::string& type_name);
 
     /**

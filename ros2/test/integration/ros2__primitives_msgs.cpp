@@ -188,11 +188,11 @@ public:
         ASSERT_EQ(msg_future.wait_for(0s), std::future_status::ready);
         xtypes::DynamicData received_msg = msg_future.get();
 
-        EXPECT_EQ(received_msg.type().name(), get_type_name<T>(T()));
+        EXPECT_EQ(std::string(received_msg->type()->get_name()), get_type_name<T>(T()));
 
-        xtypes::ReadableDynamicDataRef xtypes_primitive = received_msg;
         typename T::_data_type ros2_field;
-        is::utils::Convert<typename T::_data_type>::from_xtype_field( xtypes_primitive["data"], ros2_field);
+        xtypes::MemberId data_id = received_msg->get_member_id_by_name("data");
+        is::utils::Convert<typename T::_data_type>::from_xtype_field(received_msg, data_id, ros2_field);
         EXPECT_EQ(ros2_field, ros2_msg.data);
 
         auto echo_sub = [&](typename T::UniquePtr msg)

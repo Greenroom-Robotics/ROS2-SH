@@ -89,18 +89,35 @@ geometry_msgs::msg::PoseStamped generate_random_pose(
 
 void transform_pose_msg(
         const geometry_msgs::msg::PoseStamped& p,
-        xtypes::WritableDynamicDataRef to)
+        xtypes::DynamicData to)
 {
-    to["header"]["stamp"]["sec"] = p.header.stamp.sec;
-    to["header"]["stamp"]["nanosec"] = p.header.stamp.nanosec;
-    to["header"]["frame_id"] = "map";
-    to["pose"]["position"]["x"] = p.pose.position.x;
-    to["pose"]["position"]["y"] = p.pose.position.y;
-    to["pose"]["position"]["z"] = p.pose.position.z;
-    to["pose"]["orientation"]["x"] = p.pose.orientation.x;
-    to["pose"]["orientation"]["y"] = p.pose.orientation.y;
-    to["pose"]["orientation"]["z"] = p.pose.orientation.z;
-    to["pose"]["orientation"]["w"] = p.pose.orientation.w;
+    auto header = to->loan_value(to->get_member_id_by_name("header"));
+    {
+        auto stamp = header->loan_value(header->get_member_id_by_name("stamp"));
+        stamp->set_int32_value(stamp->get_member_id_by_name("sec"), p.header.stamp.sec);
+        stamp->set_uint32_value(stamp->get_member_id_by_name("nanosec"), p.header.stamp.nanosec);
+        header->return_loaned_value(stamp);
+    }
+    header->set_string_value(header->get_member_id_by_name("frame_id"), "map");
+    to->return_loaned_value(header);
+
+    auto pose = to->loan_value(to->get_member_id_by_name("pose"));
+    {
+        auto position = pose->loan_value(pose->get_member_id_by_name("position"));
+        position->set_float64_value(position->get_member_id_by_name("x"), p.pose.position.x);
+        position->set_float64_value(position->get_member_id_by_name("y"), p.pose.position.y);
+        position->set_float64_value(position->get_member_id_by_name("z"), p.pose.position.z);
+        pose->return_loaned_value(position);
+    }
+    {
+        auto orientation = pose->loan_value(pose->get_member_id_by_name("orientation"));
+        orientation->set_float64_value(orientation->get_member_id_by_name("x"), p.pose.orientation.x);
+        orientation->set_float64_value(orientation->get_member_id_by_name("y"), p.pose.orientation.y);
+        orientation->set_float64_value(orientation->get_member_id_by_name("z"), p.pose.orientation.z);
+        orientation->set_float64_value(orientation->get_member_id_by_name("w"), p.pose.orientation.w);
+        pose->return_loaned_value(orientation);
+    }
+    to->return_loaned_value(pose);
 }
 
 xtypes::DynamicData generate_plan_request_msg(
@@ -109,11 +126,18 @@ xtypes::DynamicData generate_plan_request_msg(
         const geometry_msgs::msg::PoseStamped& goal,
         const float tolerance = 1e-3f)
 {
-    xtypes::DynamicData message(request_type);
+    xtypes::DynamicData message =
+        xtypes::DynamicDataFactory::get_instance()->create_data(request_type);
 
-    transform_pose_msg(goal, message["goal"]);
-    transform_pose_msg(start, message["start"]);
-    message["tolerance"] = tolerance;
+    auto goal_data = message->loan_value(message->get_member_id_by_name("goal"));
+    transform_pose_msg(goal, goal_data);
+    message->return_loaned_value(goal_data);
+
+    auto start_data = message->loan_value(message->get_member_id_by_name("start"));
+    transform_pose_msg(start, start_data);
+    message->return_loaned_value(start_data);
+
+    message->set_float32_value(message->get_member_id_by_name("tolerance"), tolerance);
 
     return message;
 }
@@ -243,20 +267,22 @@ TEST(ROS2, Publish_subscribe_between_ros2_and_mock)
     ASSERT_EQ(msg_future.wait_for(0s), std::future_status::ready);
     xtypes::DynamicData received_msg = msg_future.get();
 
-    EXPECT_EQ(received_msg.type().name(), "geometry_msgs/Pose");
+    EXPECT_EQ(std::string(received_msg->type()->get_name()), "geometry_msgs/Pose");
 
-    xtypes::ReadableDynamicDataRef position = received_msg["position"];
-    xtypes::ReadableDynamicDataRef orientation = received_msg["orientation"];
+    auto position = received_msg->loan_value(received_msg->get_member_id_by_name("position"));
 
     #define TEST_POSITION_OF( u ) \
     { \
-        const double u = position[#u]; \
+        double u; \
+        position->get_float64_value(u, position->get_member_id_by_name(#u)); \
         ASSERT_NEAR(u, ros2_pose.position.u, tolerance); \
     }
 
     TEST_POSITION_OF(x);
     TEST_POSITION_OF(y);
     TEST_POSITION_OF(z);
+
+    received_msg->return_loaned_value(position);
 
     bool promise_sent = false;
     std::promise<geometry_msgs::msg::Pose> pose_promise;
@@ -346,7 +372,7 @@ TEST(ROS2, Request_reply_between_ros2_and_mock)
 
     // Get request type from ros2 middleware
     const is::TypeRegistry& ros2_types = *handle.type_registry("ros2");
-    const xtypes::DynamicType& request_type = *ros2_types.at("nav_msgs/GetPlan:request");
+    const xtypes::DynamicType& request_type = ros2_types.at("nav_msgs/GetPlan:request");
 
     // Create a plan
     nav_msgs::srv::GetPlan_Response plan_response;

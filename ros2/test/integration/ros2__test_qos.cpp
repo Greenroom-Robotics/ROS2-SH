@@ -124,11 +124,11 @@ public:
             ASSERT_EQ(msg_future.wait_for(0s), std::future_status::ready);
             xtypes::DynamicData received_msg = msg_future.get();
 
-            EXPECT_EQ(received_msg.type().name(), "std_msgs/msg/String");
+            EXPECT_EQ(std::string(received_msg->type()->get_name()), "std_msgs/msg/String");
 
-            xtypes::ReadableDynamicDataRef xtypes_msg = received_msg;
             typename std_msgs::msg::String::_data_type ros2_field;
-            is::utils::Convert<typename std_msgs::msg::String::_data_type>::from_xtype_field(xtypes_msg["data"], ros2_field);
+            xtypes::MemberId data_id = received_msg->get_member_id_by_name("data");
+            is::utils::Convert<typename std_msgs::msg::String::_data_type>::from_xtype_field(received_msg, data_id, ros2_field);
             EXPECT_EQ(ros2_field, message.data);
         }
 

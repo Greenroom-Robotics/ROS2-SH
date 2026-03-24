@@ -45,7 +45,7 @@ public:
         _type_factories[type_name] = std::move(register_type_func);
     }
 
-    xtypes::DynamicType::Ptr create_type(
+    xtypes::DynamicType create_type(
             const std::string& type_name)
     {
         auto it = _type_factories.find(type_name);
@@ -55,7 +55,7 @@ public:
                     << "'create_type' could not find a factory type named '"
                     << type_name << "' to create!" << std::endl;
 
-            return xtypes::DynamicType::Ptr();
+            return nullptr;
         }
 
         return it->second();
@@ -71,12 +71,12 @@ public:
     SerialiseToROS2Function* get_serialise_function(
             const xtypes::DynamicType& topic_type)
     {
-      auto it = _serialiser_factories.find(topic_type.name());
+      auto it = _serialiser_factories.find(std::string(topic_type->get_name()));
       if (it == _serialiser_factories.end())
       {
         logger_ << utils::Logger::Level::ERROR
                 << "get_serialise_function' could not find a message type named '"
-                << topic_type.name() << "' to load!" << std::endl;
+                << topic_type->get_name() << "' to load!" << std::endl;
 
         return nullptr;
       }
@@ -94,12 +94,12 @@ public:
     DeserialiseToXtypeFunction* get_deserialise_function(
             const xtypes::DynamicType& topic_type)
     {
-      auto it = _deserialiser_factories.find(topic_type.name());
+      auto it = _deserialiser_factories.find(std::string(topic_type->get_name()));
       if (it == _deserialiser_factories.end())
       {
         logger_ << utils::Logger::Level::ERROR
                 << "get_deserialise_function' could not find a message type named '"
-                << topic_type.name() << "' to load!" << std::endl;
+                << topic_type->get_name() << "' to load!" << std::endl;
 
         return nullptr;
       }
@@ -121,12 +121,12 @@ public:
             TopicSubscriberSystem::SubscriptionCallback* callback,
             const rclcpp::QoS& qos_profile)
     {
-        auto it = _subscription_factories.find(topic_type.name());
+        auto it = _subscription_factories.find(std::string(topic_type->get_name()));
         if (it == _subscription_factories.end())
         {
             logger_ << utils::Logger::Level::ERROR
                     << "create_subscription' could not find a message type named '"
-                    << topic_type.name() << "' to load!" << std::endl;
+                    << topic_type->get_name() << "' to load!" << std::endl;
 
             return nullptr;
         }
@@ -147,12 +147,12 @@ public:
             const std::string& topic_name,
             const rclcpp::QoS& qos_profile)
     {
-        auto it = _publisher_factories.find(topic_type.name());
+        auto it = _publisher_factories.find(std::string(topic_type->get_name()));
         if (it == _publisher_factories.end())
         {
             logger_ << utils::Logger::Level::ERROR
                     << "'create_publisher': could not find a message type named '"
-                    << topic_type.name() << "' to load!" << std::endl;
+                    << topic_type->get_name() << "' to load!" << std::endl;
 
             return nullptr;
         }
@@ -245,7 +245,7 @@ void Factory::register_type_factory(
 }
 
 //==============================================================================
-xtypes::DynamicType::Ptr Factory::create_type(
+xtypes::DynamicType Factory::create_type(
         const std::string& type_name)
 {
     return _pimpl->create_type(type_name);

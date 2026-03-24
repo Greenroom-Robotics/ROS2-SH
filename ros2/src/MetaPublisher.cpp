@@ -23,6 +23,9 @@
 #include <is/sh/ros2/Factory.hpp>
 #include <utility>
 
+#include <fastdds/dds/xtypes/utils.hpp>
+#include <sstream>
+
 
 namespace eprosima {
 namespace is {
@@ -53,7 +56,7 @@ public:
     {
         _publisher = _node.create_generic_publisher(
                 _topic_name,
-                _message_type.name(),
+                std::string(_message_type->get_name()),
                 _qos_profile);
         _serialise_to_ros2 = Factory::instance().get_serialise_function(_message_type);
     }
@@ -76,9 +79,13 @@ public:
 //                  _qos_profile);
 //        }
 
-        logger_ << utils::Logger::Level::DEBUG
-            << "Sending message from Integration Service to ROS 2 for topic '" << _topic_name
-            << "': [[ " << message << " ]]" << std::endl;
+        {
+            std::ostringstream json_oss;
+            eprosima::fastdds::dds::json_serialize(message, eprosima::fastdds::dds::DynamicDataJsonFormat::EPROSIMA, json_oss);
+            logger_ << utils::Logger::Level::DEBUG
+                << "Sending message from Integration Service to ROS 2 for topic '" << _topic_name
+                << "': [[ " << json_oss.str() << " ]]" << std::endl;
+        }
 
         rclcpp::SerializedMessage ros2_serialised;
         (*_serialise_to_ros2)(message, ros2_serialised);
@@ -157,7 +164,7 @@ public:
       subscription_options.ignore_local_publications = true; // Enable ignore_local_publications option
 
       _subscription = node.create_generic_subscription(
-              _topic_name, _message_type.name(), qos_profile,
+              _topic_name, std::string(_message_type->get_name()), qos_profile,
               #ifdef ROS_IRON
               [=](const std::shared_ptr<rclcpp::SerializedMessage> msg) {
                   this->subscription_callback(msg);
@@ -183,11 +190,15 @@ private:
              << "Receiving message from ROS 2 for topic '"
              << _topic_name << "'" << std::endl;
 
-      xtypes::DynamicData data(_message_type);
+      xtypes::DynamicData data = eprosima::fastdds::dds::DynamicDataFactory::get_instance()->create_data(_message_type);
       (*_deserialise_to_xtypes)(*msg, data);
 
-      logger_ << utils::Logger::Level::DEBUG
-             << "Received message: [[ " << data << " ]]" << std::endl;
+      {
+          std::ostringstream json_oss;
+          eprosima::fastdds::dds::json_serialize(data, eprosima::fastdds::dds::DynamicDataJsonFormat::EPROSIMA, json_oss);
+          logger_ << utils::Logger::Level::DEBUG
+              << "Received message: [[ " << json_oss.str() << " ]]" << std::endl;
+      }
 
       (*_callback)(data, nullptr);
     }

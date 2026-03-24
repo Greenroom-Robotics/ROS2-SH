@@ -44,10 +44,10 @@ macro(compile_test)
     target_link_libraries(${TEST_NAME}
         PUBLIC
             is::mock
-            ${rclcpp_LIBRARIES}
-            ${geometry_msgs_LIBRARIES}
-            ${nav_msgs_LIBRARIES}
-            ${std_msgs_LIBRARIES}
+            rclcpp::rclcpp
+            ${geometry_msgs_TARGETS}
+            ${nav_msgs_TARGETS}
+            ${std_msgs_TARGETS}
         PRIVATE
             $<IF:$<BOOL:${IS_GTEST_EXTERNAL_PROJECT}>,libgtest,gtest>
     	)

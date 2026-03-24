@@ -316,9 +316,9 @@ bool SystemHandle::configure(
 
     auto register_type = [&](const std::string& type_name) -> bool
             {
-                xtypes::DynamicType::Ptr type = Factory::instance().create_type(type_name);
+                xtypes::DynamicType type = Factory::instance().create_type(type_name);
 
-                if (type.get() == nullptr)
+                if (type == nullptr)
                 {
                     _logger << utils::Logger::Level::ERROR
                             << "Failed to register the required DynamicType '"
@@ -460,7 +460,7 @@ bool SystemHandle::subscribe(
     {
         _logger << utils::Logger::Level::ERROR
                 << "Failed to create subscription for topic '" << topic_name
-                << "' with type '" << message_type.name() << "' on node '"
+                << "' with type '" << message_type->get_name() << "' on node '"
                 << _node->get_namespace() << _node->get_name() << "'"
                 << ". The requested subscription has not been registered within the "
                 << "subscription factory!" << std::endl;
@@ -473,7 +473,7 @@ bool SystemHandle::subscribe(
 
         _logger << utils::Logger::Level::INFO
                 << "Created subscription for topic '" << topic_name << "' with type '"
-                << message_type.name() << "' on node '" << _node->get_namespace()
+                << message_type->get_name() << "' on node '" << _node->get_namespace()
                 << _node->get_name() << "'" << std::endl;
 
         return true;
@@ -506,14 +506,14 @@ std::shared_ptr<TopicPublisher> SystemHandle::advertise(
     {
         _logger << utils::Logger::Level::INFO
                 << "Created publisher for topic '" << topic_name << "' with type '"
-                << message_type.name() << "' on node '" << _node->get_namespace()
+                << message_type->get_name() << "' on node '" << _node->get_namespace()
                 << _node->get_name() << "'" << std::endl;
     }
     else
     {
         _logger << utils::Logger::Level::ERROR
                 << "Failed to create publisher for topic '" << topic_name
-                << "' with type '" << message_type.name() << "' on node '"
+                << "' with type '" << message_type->get_name() << "' on node '"
                 << _node->get_namespace() << _node->get_name()
                 << "'. The requested publisher has not been registered "
                 << "within the publisher factory!" << std::endl;
@@ -530,14 +530,14 @@ bool SystemHandle::create_client_proxy(
         const YAML::Node& configuration)
 {
     auto client_proxy = Factory::instance().create_client_proxy(
-        service_type.name(), *_node, service_name, callback,
+        std::string(service_type->get_name()), *_node, service_name, callback,
         parse_rmw_qos_configuration(configuration["qos"], _logger).get_rmw_qos_profile());
 
     if (!client_proxy)
     {
         _logger << utils::Logger::Level::ERROR
                 << "Failed to create service client for service '" << service_name
-                << "' with type '" << service_type.name() << "' on node '"
+                << "' with type '" << service_type->get_name() << "' on node '"
                 << _node->get_namespace() << _node->get_name()
                 << "'. The requested service client has not been registered "
                 << "within the service client factory!" << std::endl;
@@ -548,7 +548,7 @@ bool SystemHandle::create_client_proxy(
     {
         _logger << utils::Logger::Level::INFO
                 << "Created service client for service '" << service_name
-                << "' with type '" << service_type.name() << "' on node '"
+                << "' with type '" << service_type->get_name() << "' on node '"
                 << _node->get_namespace() << _node->get_name() << "'" << std::endl;
 
         _client_proxies.emplace_back(std::move(client_proxy));
@@ -563,14 +563,14 @@ std::shared_ptr<ServiceProvider> SystemHandle::create_service_proxy(
         const YAML::Node& configuration)
 {
     auto server_proxy = Factory::instance().create_server_proxy(
-        service_type.name(), *_node, service_name,
+        std::string(service_type->get_name()), *_node, service_name,
         parse_rmw_qos_configuration(configuration["qos"], _logger).get_rmw_qos_profile());
 
     if (!server_proxy)
     {
         _logger << utils::Logger::Level::ERROR
                 << "Failed to create service server for service '" << service_name
-                << "' with type '" << service_type.name() << "' on node '"
+                << "' with type '" << service_type->get_name() << "' on node '"
                 << _node->get_namespace() << _node->get_name()
                 << "'. The requested service server has not been registered "
                 << "within the service server factory!" << std::endl;
@@ -579,7 +579,7 @@ std::shared_ptr<ServiceProvider> SystemHandle::create_service_proxy(
     {
         _logger << utils::Logger::Level::INFO
                 << "Created service server for service '" << service_name
-                << "' with type '" << service_type.name() << "' on node '"
+                << "' with type '" << service_type->get_name() << "' on node '"
                 << _node->get_namespace() << _node->get_name() << "'" << std::endl;
     }
 
